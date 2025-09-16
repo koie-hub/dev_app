@@ -1,4 +1,4 @@
-name: Deploy Flutter Web to GitHub Pages
+name: Deploy Flutter Web to Pages
 
 on:
   push:
@@ -20,27 +20,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Flutter version
-        run: flutter --version
+      - name: Enable web & fetch deps
+        run: |
+          flutter config --enable-web
+          flutter pub get
 
-      - name: Install dependencies
-        run: flutter pub get
-
-      # GitHub Pages（サブパス /dev_app/）に必要な base-href を付けてビルド
       - name: Build web
-        run: |
-          flutter build web --release --base-href "/dev_app/"
-
-      # SPA（go_router）向け：直接 /expense などにアクセスしても 404 にならないように対策
-      - name: SPA fallback for GitHub Pages
-        run: |
-          cp build/web/index.html build/web/404.html
-          touch build/web/.nojekyll
+        run: flutter build web --release
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
